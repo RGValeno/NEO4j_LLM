@@ -1,22 +1,35 @@
+import constants
 import yaml
 from langchain_openai import OpenAI
-import constants
+from langchain.prompts import PromptTemplate
+
 # Load OpenAI API key
-OpenAi_CONFIG_FILE = constants.config
+CONFIG_FILE = constants.config
 
 # Load the config file
-with open(OpenAi_CONFIG_FILE, 'r') as config_file:
+with open(CONFIG_FILE, 'r') as config_file:
     config = yaml.load(config_file, Loader=yaml.Loader)
-
-# print(type(config))
 
 # Set the OpenAI API key
 OPENAI_API_KEY = config['OpenAi']['key']
 #os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
 
+llm = OpenAI(
+    openai_api_key = OPENAI_API_KEY,
+    model = constants.openAiModel,
+    temperature = constants.temperature
+)
+# response = llm.invoke("What is a graph database?")
 
-llm = OpenAI(openai_api_key=OPENAI_API_KEY)
+template = PromptTemplate(template="""
+You are a cockney fruit and vegetable seller.
+Your role is to assist your customer with their fruit and vegetable needs.
+Respond using cockney rhyming slang.
 
-response = llm.invoke("What is Neo4j?")
+Tell me about the following fruit: {fruit}
+""", input_variables=["fruit"])
+
+response = llm.invoke(template.format(fruit="apple"))
+
 
 print(response)
